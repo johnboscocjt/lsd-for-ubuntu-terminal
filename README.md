@@ -1,4 +1,4 @@
-# lsd (LSDeluxe) Installation & Configuration Guide
+# lsd (LSDeluxe) Installation Guide for Linux
 
 **lsd** — A modern, feature-rich alternative to the traditional `ls` command with syntax highlighting, icons, and Git integration.
 
@@ -6,9 +6,14 @@
 
 ## 📖 Table of Contents
 - [What is lsd?](#what-is-lsd)
-- [Installation](#installation)
-- [Minimal Working Configuration](#minimal-working-configuration)
-- [Configuration Reference](#configuration-reference)
+- [Features](#features)
+- [Installation Methods](#installation-methods)
+  - [Method 1: Package Manager (Ubuntu/Debian)](#method-1-package-manager-ubuntudebian)
+  - [Method 2: Cargo (Rust Package Manager)](#method-2-cargo-rust-package-manager)
+  - [Method 3: Download Pre-built Binary](#method-3-download-pre-built-binary)
+  - [Method 4: Build from Source](#method-4-build-from-source)
+- [Post-Installation Setup](#post-installation-setup)
+- [Configuration](#configuration)
 - [Usage Examples](#usage-examples)
 - [Alias Setup](#alias-setup)
 - [Troubleshooting](#troubleshooting)
@@ -17,151 +22,256 @@
 
 ## 🚀 What is lsd?
 
-**lsd** (pronounced "ls deluxe") is a modern replacement for the classic `ls` command that adds:
-- 🎨 **Syntax highlighting** for file types
-- 📁 **File icons** (requires Nerd Fonts)
-- 🔀 **Git integration** showing file status
-- 📊 **Tree view** with `--tree` flag
-- 🚀 **Fast performance** written in Rust
+**lsd** (pronounced "ls deluxe") is a modern replacement for the classic `ls` command. It combines the familiarity of `ls` with modern enhancements that make directory listings more readable and informative.
+
+### ✨ Features
+
+- 🎨 **Syntax Highlighting:** File types, permissions, and ownership displayed in colors
+- 📁 **Icons:** File icons for better visual identification (requires Nerd Fonts)
+- 🔀 **Git Integration:** Shows Git status for files and directories
+- 📊 **Tree View:** Built-in tree visualization with `--tree` flag
+- 🔍 **Contextual Colors:** Different colors for directories, symlinks, executables, etc.
+- 🚀 **Fast:** Written in Rust for performance
 
 ---
 
-## 📦 Installation
+## 📦 Installation Methods
 
-### Ubuntu/Debian
+### Method 1: Package Manager (Ubuntu/Debian)
+
+lsd is available in Ubuntu's universe repository (Ubuntu 20.04+).
+
+**Step 1: Enable Universe Repository (if not already enabled)**
 ```bash
+sudo add-apt-repository universe
 sudo apt update
+```
+
+**Step 2: Install lsd**
+```bash
 sudo apt install lsd
 ```
 
-### Verify Installation
+**Step 3: Verify Installation**
 ```bash
 lsd --version
 ```
 
 ---
 
-## ⚙️ Minimal Working Configuration
+### Method 2: Cargo (Rust Package Manager)
 
-After multiple attempts with various syntax errors, here is the **minimal working configuration** that works across different lsd versions:
+Use this method if you have Rust installed or want the latest version.
 
-### Step 1: Create the config directory
+**Step 1: Install Rust (if not already installed)**
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+```
+
+**Step 2: Install lsd via Cargo**
+```bash
+cargo install lsd
+```
+
+**Step 3: Add Cargo bin to PATH (if not already)**
+Add to `~/.bashrc` or `~/.zshrc`:
+```bash
+export PATH="$HOME/.cargo/bin:$PATH"
+```
+
+---
+
+### Method 3: Download Pre-built Binary
+
+For users who prefer a direct download.
+
+**Step 1: Download Latest Release**
+```bash
+# Get the latest version number
+VERSION=$(curl -s https://api.github.com/repos/lsd-rs/lsd/releases/latest | grep -oP '"tag_name": "\K(.*?)(?=")')
+
+# Download for x86_64 Linux
+wget https://github.com/lsd-rs/lsd/releases/download/${VERSION}/lsd-${VERSION}-x86_64-unknown-linux-gnu.tar.gz
+```
+
+**Step 2: Extract and Install**
+```bash
+tar -xzf lsd-*.tar.gz
+sudo mv lsd /usr/local/bin/
+```
+
+**Step 3: Clean Up**
+```bash
+rm lsd-*.tar.gz
+```
+
+---
+
+### Method 4: Build from Source
+
+For developers or those who want the absolute latest version.
+
+**Prerequisites:**
+```bash
+sudo apt install cargo git
+```
+
+**Step 1: Clone the Repository**
+```bash
+git clone https://github.com/lsd-rs/lsd.git
+cd lsd
+```
+
+**Step 2: Build and Install**
+```bash
+cargo build --release
+sudo cp target/release/lsd /usr/local/bin/
+```
+
+**Step 3: Verify Installation**
+```bash
+lsd --version
+```
+
+---
+
+## 🔧 Post-Installation Setup
+
+### Install a Nerd Font (for Icons)
+
+To see file icons, you need a Nerd Font installed and configured in your terminal.
+
+**Popular Nerd Fonts:**
+- [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/FiraCode.zip)
+- [JetBrains Mono Nerd Font](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/JetBrainsMono.zip)
+- [Cascadia Code Nerd Font](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/CascadiaCode.zip)
+
+**Installation:**
+```bash
+# Create fonts directory if it doesn't exist
+mkdir -p ~/.local/share/fonts
+
+# Download and extract font (example with FiraCode)
+wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/FiraCode.zip
+unzip FiraCode.zip -d ~/.local/share/fonts/FiraCode
+
+# Refresh font cache
+fc-cache -fv
+```
+
+Then configure your terminal emulator to use the installed Nerd Font.
+
+---
+
+## ⚙️ Configuration
+
+### Create Configuration File
+
+lsd uses a YAML configuration file located at:
+- `~/.config/lsd/config.yaml` — User configuration
+- `~/.config/lsd/config.yml` — Alternative extension
+
+**Step 1: Create the config directory**
 ```bash
 mkdir -p ~/.config/lsd
 ```
 
-### Step 2: Create the configuration file
+**Step 2: Create the configuration file**
 ```bash
 nano ~/.config/lsd/config.yaml
 ```
 
-### Step 3: Add the minimal configuration
-Copy and paste exactly this:
+### Minimal Working Configuration
+
+This configuration uses the correct field names and values that work across different lsd versions without syntax errors:
 
 ```yaml
 # lsd - Minimal Working Configuration
-# This configuration works without syntax errors
 
 # Icons settings
 icons:
-  when: auto
-  theme: fancy
-  separator: " "
+  when: auto          # Options: auto, always, never
+  theme: fancy        # Options: fancy, unicode
+  separator: " "      # Space between icon and filename
 
-# Layout arrangement (grid, tree, or oneline)
-layout: grid
+# Layout arrangement
+layout: grid          # Options: grid, tree, oneline
 
 # Which files to display
-display: visible-only
+display: visible-only # Options: visible-only, all, almost-all, directory-only
 
 # Sorting preferences
 sorting:
-  column: name
-  reverse: false
-  dir-grouping: first
+  column: name        # Options: name, size, time, extension
+  reverse: false      # Options: true, false
+  dir-grouping: first # Options: first, last, none
 
 # Color settings
 color:
-  when: auto
-  theme: default
+  when: auto          # Options: auto, always, never
+  theme: default      # Options: default, dark, custom
 
-# Hyperlink support (always, auto, or never)
-hyperlink: auto
+# Hyperlink support
+hyperlink: auto       # Options: auto, always, never
+
+# Git integration
+git:
+  show: true          # Options: true, false
+  status: true        # Options: true, false
+  ignore: false       # Options: true, false
+
+# Date format
+date: "+%Y-%m-%d %H:%M:%S"
 ```
 
-### Step 4: Save and exit
-- **For nano:** `Ctrl + O` → `Enter` → `Ctrl + X`
-- **For vim:** `Esc` → `:wq` → `Enter`
+### Important Notes
 
-### Step 5: Test the configuration
+- **Do NOT use `sort:`** — Use `sorting:` instead
+- **Do NOT use `dir-grouping: true/false`** — Use `dir-grouping: first/last/none`
+- **Do NOT use `display: grid`** — Use `display: visible-only` (layout controls grid)
+- **Do NOT use `hyperlink: true/false`** — Use `hyperlink: auto/always/never`
+
+### Test the Configuration
 ```bash
 lsd
 ```
 
-You should see a colorful directory listing with icons (if your terminal supports them).
+If you see a colorful directory listing with icons, the configuration is working correctly.
 
 ---
 
-## 📝 Configuration Reference
-
-Here are the correct field values for lsd configuration:
-
-| Field | Purpose | Valid Values |
-|-------|---------|--------------|
-| **icons.when** | When to show icons | `auto`, `always`, `never` |
-| **icons.theme** | Icon theme | `fancy`, `unicode` |
-| **layout** | Display arrangement | `grid`, `tree`, `oneline` |
-| **display** | Which files to show | `visible-only`, `all`, `almost-all`, `directory-only` |
-| **sorting.column** | Sort by | `name`, `size`, `time`, `extension` |
-| **sorting.reverse** | Reverse order | `true`, `false` |
-| **sorting.dir-grouping** | Directory position | `first`, `last`, `none` |
-| **color.when** | When to use colors | `auto`, `always`, `never` |
-| **hyperlink** | Terminal hyperlinks | `auto`, `always`, `never` |
-
----
-
-## 💻 Usage Examples
+## 📝 Usage Examples
 
 ### Basic Commands
+
+| Command | Description |
+|---------|-------------|
+| `lsd` | List current directory with colors and icons |
+| `lsd -l` | Long format with detailed information |
+| `lsd -a` | Show all files (including hidden) |
+| `lsd -la` | Combined: long format with hidden files |
+| `lsd --tree` | Display as tree structure |
+| `lsd --tree --depth 2` | Tree view with limited depth |
+| `lsd -R` | Recursive listing |
+| `lsd -h` | Human-readable sizes |
+| `lsd -t` | Sort by time (newest first) |
+| `lsd -S` | Sort by size (largest first) |
+
+### Advanced Examples
+
 ```bash
-# Basic listing
-lsd
-
-# Long format with details
-lsd -l
-
-# Show all files (including hidden)
-lsd -a
-
-# Long format with all files
-lsd -la
-
-# Tree view
-lsd --tree
-
-# Tree view with depth limit
-lsd --tree --depth 2
-```
-
-### Advanced Commands
-```bash
-# Show Git status (colors indicate modified/staged files)
+# List with Git status
 lsd --git
 
-# Sort by size (largest first)
-lsd --sort size
+# Tree view with icons and Git status
+lsd --tree --git --icons always
 
-# Sort by time (newest first)
-lsd --sort time
+# List with custom date format
+lsd -l --date "+%b %d %H:%M"
 
-# Reverse sort order
-lsd --reverse
-
-# One-line layout
-lsd --layout oneline
-
-# Human-readable sizes
-lsd -l --size short
+# Show permissions in octal format
+lsd -l --blocks permission,size,date,name
 ```
 
 ---
@@ -170,115 +280,80 @@ lsd -l --size short
 
 Replace the default `ls` command with lsd by adding aliases to your shell configuration.
 
-### For Zsh (~/.zshrc)
+### Bash (~/.bashrc)
 ```bash
-# Add these lines to ~/.zshrc
-echo '# lsd aliases' >> ~/.zshrc
-echo 'alias ls="lsd"' >> ~/.zshrc
-echo 'alias l="lsd -l"' >> ~/.zshrc
-echo 'alias la="lsd -a"' >> ~/.zshrc
-echo 'alias lla="lsd -la"' >> ~/.zshrc
-echo 'alias lt="lsd --tree"' >> ~/.zshrc
-echo 'alias lta="lsd --tree -a"' >> ~/.zshrc
-echo 'alias lg="lsd --git"' >> ~/.zshrc
-echo 'alias lgl="lsd --git -l"' >> ~/.zshrc
-
-# Reload configuration
-source ~/.zshrc
+# lsd aliases
+alias ls='lsd'
+alias l='lsd -l'
+alias la='lsd -a'
+alias lla='lsd -la'
+alias lt='lsd --tree'
+alias lta='lsd --tree -a'
+alias lg='lsd --git'
+alias lgl='lsd --git -l'
 ```
 
-### For Bash (~/.bashrc)
+### Zsh (~/.zshrc)
 ```bash
-# Add these lines to ~/.bashrc
-echo '# lsd aliases' >> ~/.bashrc
-echo 'alias ls="lsd"' >> ~/.bashrc
-echo 'alias l="lsd -l"' >> ~/.bashrc
-echo 'alias la="lsd -a"' >> ~/.bashrc
-echo 'alias lla="lsd -la"' >> ~/.bashrc
-echo 'alias lt="lsd --tree"' >> ~/.bashrc
-echo 'alias lta="lsd --tree -a"' >> ~/.bashrc
-echo 'alias lg="lsd --git"' >> ~/.bashrc
-echo 'alias lgl="lsd --git -l"' >> ~/.bashrc
+# lsd aliases
+alias ls='lsd'
+alias l='lsd -l'
+alias la='lsd -a'
+alias lla='lsd -la'
+alias lt='lsd --tree'
+alias lta='lsd --tree -a'
+alias lg='lsd --git'
+alias lgl='lsd --git -l'
+```
 
-# Reload configuration
-source ~/.bashrc
+### Apply Changes
+```bash
+source ~/.bashrc  # or source ~/.zshrc
 ```
 
 ---
 
 ## 🔍 Troubleshooting
 
-### Common Errors and Solutions
-
-| Error | Solution |
+| Issue | Solution |
 |-------|----------|
-| **Command not found: lsd** | Install lsd: `sudo apt install lsd` |
-| **No icons showing** | Install a Nerd Font and configure your terminal to use it |
-| **Configuration syntax errors** | Use the minimal configuration above with correct field values |
-| **`dir-grouping: true` error** | Change to `dir-grouping: first` |
-| **`hyperlink: false` error** | Change to `hyperlink: auto` |
-| **`display: grid` error** | Use `display: visible-only` (layout controls grid) |
-| **Config not being used** | Verify file location: `ls -la ~/.config/lsd/config.yaml` |
-
-### Reset Configuration
-If you encounter persistent errors, remove the config and start fresh:
-```bash
-rm ~/.config/lsd/config.yaml
-mkdir -p ~/.config/lsd
-# Then recreate using the minimal configuration above
-```
-
-### Test Without Config
-To test if lsd works without any configuration:
-```bash
-mv ~/.config/lsd/config.yaml ~/.config/lsd/config.yaml.backup
-lsd
-```
+| **Command not found: lsd** | Verify installation: `which lsd`<br>Check if `/usr/local/bin` is in PATH: `echo $PATH`<br>Reinstall using one of the methods above |
+| **Icons not displaying** | Install a Nerd Font<br>Configure terminal to use the font<br>Verify config: `cat ~/.config/lsd/config.yaml \| grep -A2 icons` |
+| **Colors not showing** | Ensure `color: when: auto` in config<br>Check if terminal supports 256 colors: `echo $TERM`<br>Try `lsd --color always` |
+| **Git status not showing** | Ensure `git: show: true` in config<br>Run in a Git repository<br>Try `lsd --git` explicitly |
+| **`sort: unknown field` error** | Change `sort:` to `sorting:` in config |
+| **`dir-grouping: true` error** | Change to `dir-grouping: first` or `last` or `none` |
+| **`display: grid` error** | Change to `display: visible-only` (layout controls grid) |
+| **`hyperlink: false` error** | Change to `hyperlink: auto` or `always` or `never` |
+| **Permission denied errors** | Run with appropriate permissions<br>Check file ownership: `ls -la`<br>Use `sudo` if needed for system directories |
+| **Slow performance on large directories** | Disable Git integration in config<br>Reduce tree depth: `--tree --depth 1`<br>Use specific sorting: `--sort name` |
+| **Cannot find config file** | Create directory: `mkdir -p ~/.config/lsd`<br>Create config using the minimal working configuration above |
 
 ---
 
-## 🎯 Quick Start Summary
+## 🎯 Quick Reference
 
-For a complete working setup, run these commands:
+### Common Flags
 
-```bash
-# 1. Install lsd
-sudo apt update && sudo apt install lsd
-
-# 2. Create config directory
-mkdir -p ~/.config/lsd
-
-# 3. Create minimal config
-cat > ~/.config/lsd/config.yaml << 'EOF'
-icons:
-  when: auto
-  theme: fancy
-layout: grid
-display: visible-only
-sorting:
-  column: name
-  reverse: false
-  dir-grouping: first
-color:
-  when: auto
-hyperlink: auto
-EOF
-
-# 4. Test it works
-lsd
-
-# 5. Add aliases (optional)
-echo 'alias ls="lsd"' >> ~/.zshrc
-echo 'alias l="lsd -l"' >> ~/.zshrc
-source ~/.zshrc
-```
+| Flag | Alternative | Description |
+|------|-------------|-------------|
+| `-l` | `--long` | Detailed list format |
+| `-a` | `--all` | Show hidden files |
+| `-t` | `--timesort` | Sort by modification time |
+| `-S` | `--sizesort` | Sort by file size |
+| `-r` | `--reverse` | Reverse sort order |
+| `-R` | `--recursive` | List subdirectories recursively |
+| `--tree` | — | Display as tree |
+| `--git` | — | Show Git status |
+| `--icons` | — | Control icon display (always/auto/never) |
 
 ---
 
 ## 📚 Additional Resources
 
 - [Official GitHub Repository](https://github.com/lsd-rs/lsd)
-- [Nerd Fonts for Icons](https://www.nerdfonts.com/)
+- [Documentation](https://github.com/lsd-rs/lsd#documentation)
+- [Nerd Fonts](https://www.nerdfonts.com/)
 - [Rust Installation](https://www.rust-lang.org/tools/install)
 
 ---
@@ -289,15 +364,7 @@ source ~/.zshrc
 
 ---
 
-*For issues or questions, please open an issue on the [GitHub repository](https://github.com/lsd-rs/lsd/issues).*
-```
+*For issues or feature requests, please open an issue on the [GitHub repository](https://github.com/lsd-rs/lsd/issues).*
 
-This documentation provides:
-1. **Minimal working configuration** that avoids all syntax errors
-2. **Correct field values** based on your version's requirements
-3. **Step-by-step setup** with clear commands
-4. **Troubleshooting table** for common errors
-5. **Quick start summary** for users who want to copy-paste and go
-6. **Alias setup** for both Zsh and Bash
-7. **Complete reference** of all configuration options
+
 
